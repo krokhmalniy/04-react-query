@@ -1,24 +1,46 @@
 import axios from "axios";
-import type { Movie } from "../types/movie";
+import type { MoviesResponse } from "../types/movie";
 
-const BASE_URL = "https://api.themoviedb.org/3/search/movie";
-const TOKEN = import.meta.env.VITE_TMDB_TOKEN;
+const BASE_URL = "https://api.themoviedb.org/3";
 
-export interface FetchMoviesResponse {
-  results: Movie[];
-  total_pages: number;
+const tmdb = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    accept: "application/json",
+  },
+});
+
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY as string | undefined;
+const TOKEN = import.meta.env.VITE_TMDB_TOKEN as string | undefined;
+
+// Якщо використовується Bearer token (v4)
+if (TOKEN) {
+  tmdb.defaults.headers.common.Authorization = `Bearer ${TOKEN}`;
 }
 
-export const fetchMovies = async (
+export async function fetchMovies(
   query: string,
   page: number
-): Promise<FetchMoviesResponse> => {
-  const response = await axios.get<FetchMoviesResponse>(BASE_URL, {
-    params: { query, page },
-    headers: {
-      Authorization: `Bearer ${TOKEN}`,
-    },
+): Promise<MoviesResponse> {
+  const params: Record<string, string | number | boolean> = {
+    query,
+    page,
+    include_adult: false,
+  };
+
+  // Якщо немає Bearer token — використовуємо api_key
+  if (!TOKEN) {
+    if (!API_KEY) {
+      throw new Error(
+        "TMDB credentials missing. Add VITE_TMDB_TOKEN or VITE_TMDB_API_KEY to .env"
+      );
+    }
+    params.api_key = API_KEY;
+  }
+
+  const response = await tmdb.get<MoviesResponse>("/search/movie", {
+    params,
   });
 
   return response.data;
-};
+}
