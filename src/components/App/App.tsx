@@ -19,11 +19,12 @@ export default function App() {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   const trimmedQuery = query.trim();
+  const hasQuery = trimmedQuery.length > 0;
 
   const { data, isPending, isError, error, isFetching } = useQuery({
     queryKey: ["movies", trimmedQuery, page],
     queryFn: () => fetchMovies(trimmedQuery, page),
-    enabled: trimmedQuery.length > 0,
+    enabled: hasQuery,
     placeholderData: keepPreviousData,
   });
 
@@ -31,14 +32,10 @@ export default function App() {
   const totalPages = data?.total_pages ?? 0;
 
   const handleSearch = (nextQuery: string) => {
-    const nextTrimmed = nextQuery.trim();
-
     setQuery(nextQuery);
     setPage(1);
 
-    // Якщо запит порожній — просто не буде запиту (enabled: false),
-    // а сторінка вже скинута на 1 без useEffect.
-    if (nextTrimmed.length === 0) {
+    if (nextQuery.trim().length === 0) {
       setSelectedMovie(null);
     }
   };
@@ -54,7 +51,7 @@ export default function App() {
     <div className={css.app}>
       <SearchBar onSubmit={handleSearch} />
 
-      {(isPending || isFetching) && <Loader />}
+      {hasQuery && (isPending || isFetching) && <Loader />}
 
       {isError && (
         <ErrorMessage
@@ -66,10 +63,9 @@ export default function App() {
         <MovieGrid movies={movies} onSelect={openModal} />
       )}
 
-      {!isPending &&
-        !isError &&
-        trimmedQuery.length > 0 &&
-        movies.length === 0 && <ErrorMessage message="No movies found." />}
+      {!isPending && !isError && hasQuery && movies.length === 0 && (
+        <ErrorMessage message="No movies found." />
+      )}
 
       {totalPages > 1 && (
         <ReactPaginate
