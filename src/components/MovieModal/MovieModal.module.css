@@ -1,87 +1,82 @@
 .backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
 }
 
 .modal {
-    position: relative;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    background-color: #222;
-    width: 60vw;
-    min-width: 400px;
-    max-width: 800px;
-    height: 80vh;
-    min-height: 300px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  width: min(100%, 960px);
+  max-height: 90vh;
+  background: #111;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 18px;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.imageFallback {
+  width: 100%;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #222;
+  color: #fff;
 }
 
 .content {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    padding: 20px;
-    overflow-y: auto;
-    max-height: 50%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  padding: 16px 18px 18px;
+  color: #fff;
 }
 
-.content h2 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: bold;
-    line-height: 1.2;
+.title {
+  font-size: 24px;
+  margin: 0 0 10px;
 }
 
-.content p {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.4;
+.overview {
+  margin: 0 0 14px;
+  opacity: 0.95;
 }
 
-.closeButton {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(255, 255, 255, 0.8);
-    border: none;
-    border-radius: 4px;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.closeButton:hover {
-    background: rgba(255, 255, 255, 1);
-}
-
-.closeButton:focus {
-    outline: 2px solid #007bff;
+.meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  opacity: 0.9;
 }

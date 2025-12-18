@@ -1,6 +1,5 @@
-import React, { useEffect, useCallback } from "react";
+import { useCallback, useEffect, type FC, type MouseEvent } from "react";
 import { createPortal } from "react-dom";
-import type { FC } from "react";
 import type { Movie } from "../../types/movie";
 import styles from "./MovieModal.module.css";
 
@@ -9,8 +8,10 @@ interface MovieModalProps {
   onClose: () => void;
 }
 
+const IMAGE_BASE = "https://image.tmdb.org/t/p/original";
+
 const MovieModal: FC<MovieModalProps> = ({ movie, onClose }) => {
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleBackdropClick = (e: MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) onClose();
   };
 
@@ -18,66 +19,48 @@ const MovieModal: FC<MovieModalProps> = ({ movie, onClose }) => {
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     },
-    [onClose] // залежність onClose
+    [onClose]
   );
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleEsc);
+
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
       window.removeEventListener("keydown", handleEsc);
     };
-  }, [handleEsc]); // додаємо handleEsc
+  }, [handleEsc]);
+
+  const backdropUrl = movie.backdrop_path
+    ? `${IMAGE_BASE}${movie.backdrop_path}`
+    : null;
 
   return createPortal(
-    <div
-      className={styles.backdrop}
-      onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
-    >
+    <div className={styles.backdrop} onClick={handleBackdropClick}>
       <div className={styles.modal}>
-        <button
-          className={styles.closeButton}
-          aria-label="Close modal"
-          onClick={onClose}
-        >
-          &times;
+        <button className={styles.close} type="button" onClick={onClose}>
+          ✕
         </button>
-        {movie.backdrop_path ? (
-          <img
-            className={styles.image}
-            src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-            alt={movie.title}
-          />
+
+        {backdropUrl ? (
+          <img className={styles.image} src={backdropUrl} alt={movie.title} />
         ) : (
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: "#222",
-              color: "#fff",
-              textAlign: "center",
-              fontSize: "20px",
-              padding: "20px",
-            }}
-          >
-            Вибачте, зображення відсутнє
-          </div>
+          <div className={styles.imageFallback}>No image</div>
         )}
+
         <div className={styles.content}>
-          <h2>{movie.title}</h2>
-          <p>{movie.overview}</p>
-          <p>
-            <strong>Release Date:</strong> {movie.release_date}
-          </p>
-          <p>
-            <strong>Rating:</strong> {movie.vote_average}/10
-          </p>
+          <h2 className={styles.title}>{movie.title}</h2>
+          <p className={styles.overview}>{movie.overview || "No overview."}</p>
+
+          <div className={styles.meta}>
+            <p>
+              <strong>Release Date:</strong> {movie.release_date || "—"}
+            </p>
+            <p>
+              <strong>Rating:</strong> {movie.vote_average?.toFixed(1) ?? "—"}/10
+            </p>
+          </div>
         </div>
       </div>
     </div>,
