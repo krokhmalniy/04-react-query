@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import ReactPaginate from "react-paginate";
+import toast from "react-hot-toast";
 
 import css from "./App.module.css";
 
@@ -21,7 +22,7 @@ export default function App() {
   const trimmedQuery = query.trim();
   const hasQuery = trimmedQuery.length > 0;
 
-  const { data, isPending, isError, error, isFetching } = useQuery({
+  const { data, isPending, isError, error, isFetching, isSuccess } = useQuery({
     queryKey: ["movies", trimmedQuery, page],
     queryFn: () => fetchMovies(trimmedQuery, page),
     enabled: hasQuery,
@@ -31,9 +32,28 @@ export default function App() {
   const movies = data?.results ?? [];
   const totalPages = data?.total_pages ?? 0;
 
+  // Щоб не показувати toast багато разів для одного й того ж запиту
+  const lastNoResultsToastQueryRef = useRef<string>("");
+
+  useEffect(() => {
+    if (!hasQuery) return;
+
+    // Запит успішний, але результатів немає
+    if (isSuccess && movies.length === 0) {
+      // показуємо toast тільки один раз на конкретний trimmedQuery
+      if (lastNoResultsToastQueryRef.current !== trimmedQuery) {
+        toast("No movies found for your query");
+        lastNoResultsToastQueryRef.current = trimmedQuery;
+      }
+    }
+  }, [hasQuery, isSuccess, movies.length, trimmedQuery]);
+
   const handleSearch = (nextQuery: string) => {
     setQuery(nextQuery);
     setPage(1);
+
+    // коли користувач запускає новий пошук/очищає — скидаємо "пам'ять" про toast
+    lastNoResultsToastQueryRef.current = "";
 
     if (nextQuery.trim().length === 0) {
       setSelectedMovie(null);
